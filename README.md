@@ -452,12 +452,6 @@ CreditNomo is designed for **high-throughput, low-latency** binary options tradi
 
 ---
 
-## Documentation
-
-- **[Pitch Deck](https://docs.google.com/presentation/d/1kLYkj42a4R3cMYrsuxRkb84evhZ659MvbFXp28knRvM/edit?usp=sharing)** - Project presentation
-
----
-
 **Tracks:** DeFi & Gaming
 
 **DeFi Track:**  
