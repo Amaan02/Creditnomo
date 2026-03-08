@@ -1,11 +1,6 @@
 # CreditNomo
 
-[![CreditCoin](https://img.shields.io/badge/CreditCoin-Testnet-purple)](https://creditcoin.org/)
-[![Next.js](https://img.shields.io/badge/Next.js-16.1-black)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
-
 **The first on-chain binary options trading dApp built on CreditCoin.**  
-
 Powered by **CreditCoin testnet** + **Pyth Hermes** price attestations + **Supabase** + instant house balance.
 
 *Trade binary options with oracle-bound resolution and minimal trust.*
@@ -36,22 +31,6 @@ Powered by **CreditCoin testnet** + **Pyth Hermes** price attestations + **Supab
 | **Core code** | `app/`, `components/`, `lib/`, `supabase/`, `scripts/` — full Next.js app, CreditCoin integration, Pyth, Supabase |
 | **README** | This file — overview, quick start, tech stack, architecture, getting started |
 | **Architecture & flow (`.md` + Mermaid)** | **README.md** (How It Works, System Architecture, Data Flow, Game Modes) · **docs/TECHNICAL.md** (architecture, setup, demo) · **docs/PROJECT.md** (problem, solution, user journey) · **USER_JOURNEY.md** (onboarding, deposit, Classic/Box, withdrawal, lifecycle) · **DEVELOPER_GUIDE.md** (component diagram, sequence diagram) · **ROADMAP.md** (timeline) |
-
-All architectural and flow diagrams are in Markdown using [Mermaid](https://mermaid.js.org/) (rendered on GitHub). No evaluation materials live outside this repo.
-
----
-
-## 📚 Documentation
-
-- **[Quick Start](#getting-started)** - Get up and running in 5 minutes
-- **[Developer Guide](./DEVELOPER_GUIDE.md)** - Comprehensive setup and contribution guide
-- **[Roadmap](./ROADMAP.md)** - Product roadmap and milestones
-- **[User Journey](./USER_JOURNEY.md)** - End‑to‑end trader flow and UX
-- **[Dependencies & credits](./DEPENDENCIES.md)** - Open-source dependencies and acknowledgements
-- **[Contributing](./CONTRIBUTING.md)** - How to contribute
-- **[Security](./SECURITY.md)** - Security policy and vulnerability reporting
-
-**Open source:** This repository is public and **fork-friendly**.
 
 ---
 
@@ -473,8 +452,6 @@ CreditNomo is designed for **high-throughput, low-latency** binary options tradi
 
 ## Documentation
 
-- **[Developer Guide](./DEVELOPER_GUIDE.md)** - Full setup and contribution guide
-- **[Roadmap](./ROADMAP.md)** - Product roadmap and milestones
 - **[Pitch Deck](https://docs.google.com/presentation/d/1kLYkj42a4R3cMYrsuxRkb84evhZ659MvbFXp28knRvM/edit?usp=sharing)** - Project presentation
 
 ---
