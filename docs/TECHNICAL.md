@@ -199,7 +199,7 @@ This section describes **one suggested demo flow** for judges.
 
 ### Access
 
-**Production (no setup):** Open [https://creditnomo.vercel.app/trade](https://creditnomo.vercel.app/trade) in your browser.
+**Production (no setup):** Open [https://creditnomo-kappa.vercel.app/trade](https://creditnomo-kappa.vercel.app/trade) in your browser.
 
 **Local:**  
 1. Start the dev server:

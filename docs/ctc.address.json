@@ -11,9 +11,9 @@
       "description": "Primary CTC treasury for deposits and withdrawals. EOA wallet for instant house balance settlement."
     }
   ],
-  "frontendUrl": "https://creditnomo.vercel.app",
-  "appTradeUrl": "https://creditnomo.vercel.app/trade",
-  "backendApi": "https://creditnomo.vercel.app/api",
+  "frontendUrl": "https://creditnomo-kappa.vercel.app",
+  "appTradeUrl": "https://creditnomo-kappa.vercel.app/trade",
+  "backendApi": "https://creditnomo-kappa.vercel.app/api",
   "githubRepo": "https://github.com/Amaan02/Creditnomo",
   "pitchDeck": "https://docs.google.com/presentation/d/1kLYkj42a4R3cMYrsuxRkb84evhZ659MvbFXp28knRvM/edit?usp=sharing",
   "features": [

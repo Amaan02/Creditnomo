@@ -7,6 +7,8 @@ Powered by **CreditCoin testnet** + **Pyth Hermes** price attestations + **Supab
 
 **Main treasury (CreditCoin testnet):** [`0x71197e7a1CA5A2cb2AD82432B924F69B1E3dB123`](https://creditcoin-testnet.blockscout.com/address/0x71197e7a1CA5A2cb2AD82432B924F69B1E3dB123)
 
+**Live app:** [https://creditnomo-kappa.vercel.app/trade](https://creditnomo-kappa.vercel.app/trade)
+
 ---
 
 **Tracks:**
@@ -472,6 +474,7 @@ Features Blitz Rounds with multiplier-based rewards, leaderboards, referral syst
 - 🔗 On-chain treasury verification on CreditCoin Testnet
 
 **Links:**
+- Live app: https://creditnomo-kappa.vercel.app/trade
 - Treasury: https://creditcoin-testnet.blockscout.com/address/0x71197e7a1CA5A2cb2AD82432B924F69B1E3dB123
 - GitHub: https://github.com/Amaan02/Creditnomo
 - Deck: https://docs.google.com/presentation/d/1kLYkj42a4R3cMYrsuxRkb84evhZ659MvbFXp28knRvM/edit?usp=sharing

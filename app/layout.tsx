@@ -22,7 +22,7 @@ const orbitron = Orbitron({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://creditnomo.vercel.app'),
+  metadataBase: new URL('https://creditnomo-kappa.vercel.app'),
   title: "CreditNomo - Binary Options on CreditCoin",
   description:
     "On-chain binary options trading dApp on CreditCoin testnet. Powered by Pyth Hermes price attestations and Supabase. Oracle-bound resolution, minimal trust.",
@@ -36,9 +36,9 @@ export const metadata: Metadata = {
     "prediction",
   ],
   icons: {
-    icon: "/creditnomo-logo.ico",
-    shortcut: "/creditnomo-logo.ico",
-    apple: "/creditnomo-logo.ico",
+    icon: "/creditnomologo.ico",
+    shortcut: "/creditnomologo.ico",
+    apple: "/creditnomologo.ico",
   },
   openGraph: {
     title: "CreditNomo - Binary Options on CreditCoin",

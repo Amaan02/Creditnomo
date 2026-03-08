@@ -64,7 +64,7 @@ export const config = createConfig(
     // App Info
     appName: 'CreditNomo',
     appDescription: 'Binary Options Trading on CreditCoin Testnet',
-    appUrl: 'https://creditnomo.app',
-    appIcon: 'https://creditnomo.app/logo.png',
+    appUrl: 'https://creditnomo-kappa.vercel.app',
+    appIcon: 'https://creditnomo-kappa.vercel.app/creditnomo-logo.png',
   }),
 );

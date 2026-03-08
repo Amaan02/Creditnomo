@@ -4,7 +4,7 @@ Supporting material for demos and judging.
 
 ---
 
-- **Live app** — Production deployment (default trading page).  
+- **Live app** — [https://creditnomo-kappa.vercel.app/trade](https://creditnomo-kappa.vercel.app/trade) (production trading page).  
 
 - **Pitch deck** — Slide deck (Google Slides).  
   Link: [Creditnomo Pitch Deck](https://docs.google.com/presentation/d/1kLYkj42a4R3cMYrsuxRkb84evhZ659MvbFXp28knRvM/edit?usp=sharing)  
