@@ -7,7 +7,7 @@
     {
       "name": "CreditnomoTreasury",
       "address": "0x71197e7a1CA5A2cb2AD82432B924F69B1E3dB123",
-      "explorerLink": "https://creditcoin-testnet.blockscout.com/address/0x71197e7a1CA5A2cb2AD82432B924F69B1E3dB123",
+      "explorerLink": "https://creditcoin-testnet.blockscout.com/address/0x71197e7a1CA5A2cb2AD82432B924F69B1E3dB123?tab=index",
       "description": "Primary CTC treasury for deposits and withdrawals. EOA wallet for instant house balance settlement."
     }
   ],
@@ -15,7 +15,8 @@
   "appTradeUrl": "https://creditnomo-kappa.vercel.app/trade",
   "backendApi": "https://creditnomo-kappa.vercel.app/api",
   "githubRepo": "https://github.com/Amaan02/Creditnomo",
-  "pitchDeck": "https://docs.google.com/presentation/d/1kLYkj42a4R3cMYrsuxRkb84evhZ659MvbFXp28knRvM/edit?usp=sharing",
+  "pitchDeck": "https://docs.google.com/presentation/d/1kLYkj42a4R3cMYrsuxRkb84evhZ659MvbFXp28knRvM/edit?slide=id.g3ab778face2_0_20#slide=id.g3ab778face2_0_20",
+  "demoVideo": "https://youtu.be/jxhAybpdMfk",
   "features": [
     "Binary options trading on CreditCoin",
     "Pyth Hermes oracle integration for millisecond-precise pricing",
