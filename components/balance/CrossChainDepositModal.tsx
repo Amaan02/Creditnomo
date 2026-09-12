@@ -2,15 +2,18 @@
 
 import React, { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
-import { parseEther, getAddress } from 'viem';
-import { useAccount, useWalletClient, useSwitchChain } from 'wagmi';
+import { parseEther, getAddress, type Hex } from 'viem';
+import { useAccount, useSwitchChain } from 'wagmi';
+import { getWalletClient } from '@wagmi/core';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { useCreditnomoStore } from '@/lib/store';
 import { useToast } from '@/lib/hooks/useToast';
+import { config as wagmiConfig } from '@/lib/ctc/wagmi';
 
 const SEPOLIA_CHAIN_ID = 11155111;
+const SEPOLIA_HEX = '0xaa36a7';
 
 interface CrossChainDepositModalProps {
   isOpen: boolean;
@@ -25,6 +28,18 @@ type Step =
   | 'proving'
   | 'done'
   | 'error';
+
+function friendlyError(err: unknown): string {
+  const raw = err instanceof Error ? err.message : String(err);
+  if (/chain.*match|target chain|Current Chain ID/i.test(raw)) {
+    return 'Wallet is still on CreditCoin. Approve the switch to Ethereum Sepolia, then tap Send again.';
+  }
+  if (/user rejected|denied|rejected the request/i.test(raw)) {
+    return 'Transaction rejected in wallet.';
+  }
+  // Keep toast readable — truncate viem dumps
+  return raw.length > 220 ? `${raw.slice(0, 220)}…` : raw;
+}
 
 export const CrossChainDepositModal: React.FC<CrossChainDepositModalProps> = ({
   isOpen,
@@ -46,7 +61,6 @@ export const CrossChainDepositModal: React.FC<CrossChainDepositModalProps> = ({
   const { address, fetchBalance } = useCreditnomoStore();
   const toast = useToast();
   const { address: wagmiAddress, isConnected: wagmiConnected, chainId } = useAccount();
-  const { data: wagmiWalletClient } = useWalletClient();
   const { switchChainAsync } = useSwitchChain();
   const { wallets: privyWallets } = useWallets();
   const { authenticated } = usePrivy();
@@ -67,9 +81,7 @@ export const CrossChainDepositModal: React.FC<CrossChainDepositModalProps> = ({
         if (data.sepoliaDepositAddress) setDepositAddress(data.sepoliaDepositAddress);
         if (data.ethToCtcRate) setEthToCtcRate(Number(data.ethToCtcRate));
       })
-      .catch(() => {
-        /* defaults from env / server */
-      });
+      .catch(() => {});
   }, [isOpen]);
 
   const estimatedCtc =
@@ -78,12 +90,47 @@ export const CrossChainDepositModal: React.FC<CrossChainDepositModalProps> = ({
       : '0';
 
   const ensureSepolia = async () => {
+    // Prefer injected provider switch (most reliable with MetaMask)
+    const eth = (typeof window !== 'undefined' ? (window as any).ethereum : null) as
+      | { request: (args: { method: string; params?: unknown[] }) => Promise<unknown> }
+      | undefined;
+
+    if (eth?.request) {
+      try {
+        await eth.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: SEPOLIA_HEX }],
+        });
+        return;
+      } catch (switchErr: any) {
+        // 4902 = chain not added
+        if (switchErr?.code === 4902) {
+          await eth.request({
+            method: 'wallet_addEthereumChain',
+            params: [
+              {
+                chainId: SEPOLIA_HEX,
+                chainName: 'Sepolia',
+                nativeCurrency: { name: 'Sepolia ETH', symbol: 'ETH', decimals: 18 },
+                rpcUrls: ['https://ethereum-sepolia-rpc.publicnode.com'],
+                blockExplorerUrls: ['https://sepolia.etherscan.io'],
+              },
+            ],
+          });
+          return;
+        }
+        // fall through to wagmi
+      }
+    }
+
     if (chainId === SEPOLIA_CHAIN_ID) return;
     if (switchChainAsync) {
       await switchChainAsync({ chainId: SEPOLIA_CHAIN_ID });
+      // Give wagmi a beat to refresh the client chain
+      await new Promise((r) => setTimeout(r, 400));
       return;
     }
-    throw new Error('Please switch your wallet to Ethereum Sepolia');
+    throw new Error('Please switch your wallet to Ethereum Sepolia (11155111)');
   };
 
   const sendSepoliaDeposit = async (): Promise<string> => {
@@ -95,25 +142,51 @@ export const CrossChainDepositModal: React.FC<CrossChainDepositModalProps> = ({
     await ensureSepolia();
     const to = getAddress(depositAddress);
 
-    if (wagmiConnected && wagmiAddress && wagmiWalletClient) {
+    // Path 1: ethers via injected provider on Sepolia (avoids stale wagmi chainId)
+    const eth = (typeof window !== 'undefined' ? (window as any).ethereum : null) as
+      | { request: (args: { method: string; params?: unknown[] }) => Promise<unknown> }
+      | undefined;
+    if (eth?.request) {
+      const provider = new ethers.BrowserProvider(eth as any);
+      const network = await provider.getNetwork();
+      if (Number(network.chainId) !== SEPOLIA_CHAIN_ID) {
+        throw new Error(
+          'Still not on Sepolia after switch. Open MetaMask → switch network to Sepolia → try again.'
+        );
+      }
       toast.info('Confirm Sepolia ETH transfer in your wallet…');
-      return wagmiWalletClient.sendTransaction({ to, value, chainId: SEPOLIA_CHAIN_ID });
+      const signer = await provider.getSigner();
+      const tx = await signer.sendTransaction({ to, value });
+      setStatusMsg(`Submitted ${tx.hash.slice(0, 10)}… waiting for confirmation`);
+      await tx.wait();
+      return tx.hash;
     }
 
+    // Path 2: wagmi wallet client forced to Sepolia
+    if (wagmiConnected && wagmiAddress) {
+      const client = await getWalletClient(wagmiConfig, { chainId: SEPOLIA_CHAIN_ID });
+      if (!client) throw new Error('Wallet client unavailable for Sepolia');
+      toast.info('Confirm Sepolia ETH transfer in your wallet…');
+      const hash = await (client as any).sendTransaction({
+        to,
+        value,
+        chainId: SEPOLIA_CHAIN_ID,
+      });
+      return hash as Hex;
+    }
+
+    // Path 3: Privy embedded
     if (authenticated && privyWallets?.length) {
       const wallet = privyWallets.find(
         (w) => w.address.toLowerCase() === address.toLowerCase()
       );
       if (!wallet) throw new Error('Privy wallet not found');
       const ethereumProvider = await wallet.getEthereumProvider();
+      await (ethereumProvider as any).request?.({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: SEPOLIA_HEX }],
+      });
       const provider = new ethers.BrowserProvider(ethereumProvider);
-      const network = await provider.getNetwork();
-      if (Number(network.chainId) !== SEPOLIA_CHAIN_ID) {
-        await (ethereumProvider as any).request?.({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: '0xaa36a7' }],
-        });
-      }
       const signer = await provider.getSigner();
       toast.info('Confirm Sepolia ETH transfer in your wallet…');
       const tx = await signer.sendTransaction({ to, value });
@@ -132,7 +205,6 @@ export const CrossChainDepositModal: React.FC<CrossChainDepositModalProps> = ({
       );
       const data = await res.json();
       if (!data.success && data.error) {
-        // keep polling if still indexing
         setStatusMsg(data.error);
       } else if (data.status === 'credited' || data.status === 'ready') {
         return data;
@@ -176,9 +248,7 @@ export const CrossChainDepositModal: React.FC<CrossChainDepositModalProps> = ({
     setStep('done');
     await fetchBalance(address);
     const ctcNum = parseFloat(data.creditedCtc || '0');
-    toast.success(
-      `Attestcoin deposit credited: ${ctcNum.toFixed(4)} CTC house balance`
-    );
+    toast.success(`Attestcoin deposit credited: ${ctcNum.toFixed(4)} CTC`);
     onSuccess?.(ctcNum, hash);
   };
 
@@ -190,6 +260,7 @@ export const CrossChainDepositModal: React.FC<CrossChainDepositModalProps> = ({
     try {
       setError(null);
       setStep('sending');
+      setStatusMsg('Switching wallet to Sepolia…');
       const hash = await sendSepoliaDeposit();
       setTxHash(hash);
       setStep('awaiting_attestation');
@@ -199,8 +270,9 @@ export const CrossChainDepositModal: React.FC<CrossChainDepositModalProps> = ({
     } catch (err: any) {
       console.error(err);
       setStep('error');
-      setError(err?.message || 'Cross-chain deposit failed');
-      toast.error(err?.message || 'Cross-chain deposit failed');
+      const msg = friendlyError(err);
+      setError(msg);
+      toast.error(msg);
     }
   };
 
@@ -222,8 +294,9 @@ export const CrossChainDepositModal: React.FC<CrossChainDepositModalProps> = ({
     } catch (err: any) {
       console.error(err);
       setStep('error');
-      setError(err?.message || 'Prove & credit failed');
-      toast.error(err?.message || 'Prove & credit failed');
+      const msg = friendlyError(err);
+      setError(msg);
+      toast.error(msg);
     }
   };
 
@@ -233,71 +306,62 @@ export const CrossChainDepositModal: React.FC<CrossChainDepositModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Attestcoin Cross-Chain Deposit"
+      title="Attestcoin · Sepolia → Creditcoin"
       showCloseButton={!busy}
+      size="md"
     >
-      <div className="space-y-4">
-        <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 space-y-2">
+      <div className="space-y-3">
+        <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 space-y-1.5">
           <p className="text-[10px] uppercase tracking-wider text-emerald-400 font-mono">
-            Attestcoin Protocol · Sepolia → Creditcoin
+            Cross-chain deposit
           </p>
-          <p className="text-xs text-gray-300 leading-relaxed">
-            Send ETH on <span className="text-white font-semibold">Sepolia</span>. Creditnomo
-            waits for Attestcoin attestation, builds Merkle + continuity proofs, calls{' '}
-            <span className="font-mono text-emerald-300">verifyAndEmit</span> on Creditcoin
-            BlockProver (<span className="font-mono">0x…0FD2</span>), then credits your CTC
-            house balance.
+          <p className="text-xs text-gray-300 leading-snug">
+            Send ETH on <span className="text-white font-semibold">Sepolia</span>, then we
+            prove it with Attestcoin (<span className="font-mono text-emerald-300">verifyAndEmit</span>) and credit CTC.
           </p>
-          <p className="text-[10px] text-gray-400 font-mono break-all">
-            Deposit address: {depositAddress || 'loading…'}
+          <p className="text-[10px] text-gray-500 font-mono break-all">
+            To: {depositAddress || '…'}
           </p>
-          <p className="text-[10px] text-gray-400 font-mono">
-            Rate: 1 ETH → {ethToCtcRate} CTC (testnet)
+          <p className="text-[10px] text-gray-500 font-mono">
+            Rate 1 ETH → {ethToCtcRate} CTC · est. {estimatedCtc} CTC
           </p>
         </div>
 
-        <div className="space-y-2">
-          <label className="text-gray-400 text-xs font-mono uppercase">
+        <div className="space-y-1.5">
+          <label className="text-gray-400 text-[10px] font-mono uppercase">
             Sepolia ETH amount
           </label>
           <input
             type="text"
+            inputMode="decimal"
             value={amount}
             disabled={busy}
             onChange={(e) => {
               const v = e.target.value;
               if (v === '' || /^\d*\.?\d*$/.test(v)) setAmount(v);
             }}
-            className="w-full px-4 py-3 bg-black/50 border border-emerald-500/30 rounded-lg text-white font-mono focus:outline-none focus:ring-1 focus:ring-emerald-400"
+            className="w-full px-3 py-2.5 bg-black/50 border border-emerald-500/30 rounded-lg text-white font-mono text-sm focus:outline-none focus:ring-1 focus:ring-emerald-400"
             placeholder="0.01"
           />
-          <p className="text-[10px] text-gray-400 font-mono">
-            Est. credit ≈ {estimatedCtc} CTC
-          </p>
         </div>
 
-        <div className="space-y-2">
-          <label className="text-gray-400 text-xs font-mono uppercase">
-            Or paste existing Sepolia tx hash
+        <div className="space-y-1.5">
+          <label className="text-gray-400 text-[10px] font-mono uppercase">
+            Or paste Sepolia tx hash
           </label>
           <input
             type="text"
             value={txHash}
             disabled={busy}
             onChange={(e) => setTxHash(e.target.value.trim())}
-            className="w-full px-4 py-2 bg-black/50 border border-white/10 rounded-lg text-xs text-white font-mono focus:outline-none focus:ring-1 focus:ring-emerald-400"
+            className="w-full px-3 py-2 bg-black/50 border border-white/10 rounded-lg text-[11px] text-white font-mono focus:outline-none focus:ring-1 focus:ring-emerald-400"
             placeholder="0x…"
           />
         </div>
 
         {statusMsg && (
           <div className="rounded-lg border border-white/10 bg-white/5 px-3 py-2">
-            <p className="text-xs text-gray-300 font-mono">{statusMsg}</p>
-            {step === 'awaiting_attestation' && (
-              <p className="text-[10px] text-amber-400 mt-1 font-mono animate-pulse">
-                Polling Attestcoin attestation…
-              </p>
-            )}
+            <p className="text-[11px] text-gray-300 font-mono break-words">{statusMsg}</p>
           </div>
         )}
 
@@ -313,37 +377,44 @@ export const CrossChainDepositModal: React.FC<CrossChainDepositModalProps> = ({
                 rel="noreferrer"
                 className="text-[10px] text-emerald-400 underline break-all font-mono"
               >
-                Creditcoin emit tx: {result.emitTxHash}
+                Emit tx: {result.emitTxHash}
               </a>
             )}
           </div>
         )}
 
         {error && (
-          <div className="bg-red-900/20 border border-red-500 rounded-lg px-3 py-2">
-            <p className="text-red-400 text-xs font-mono">{error}</p>
+          <div className="bg-red-900/20 border border-red-500/60 rounded-lg px-3 py-2 max-h-28 overflow-y-auto">
+            <p className="text-red-400 text-[11px] font-mono break-words whitespace-pre-wrap">
+              {error}
+            </p>
           </div>
         )}
 
-        <div className="flex flex-col sm:flex-row gap-2 pt-1">
-          <Button onClick={onClose} variant="secondary" className="flex-1" disabled={busy}>
-            Close
+        {/* Stacked actions — fits phone width */}
+        <div className="flex flex-col gap-2 pt-1">
+          <Button
+            onClick={handleSendAndProve}
+            variant="primary"
+            className="w-full"
+            disabled={busy || !amount || parseFloat(amount || '0') <= 0}
+          >
+            {busy && step === 'sending'
+              ? 'Switching / sending…'
+              : busy
+                ? 'Working…'
+                : '1. Send ETH on Sepolia'}
           </Button>
           <Button
             onClick={handleProveExisting}
             variant="secondary"
-            className="flex-1"
+            className="w-full"
             disabled={busy || !txHash}
           >
-            Prove & credit tx
+            2. Prove & credit existing tx
           </Button>
-          <Button
-            onClick={handleSendAndProve}
-            variant="primary"
-            className="flex-1"
-            disabled={busy || !amount || parseFloat(amount || '0') <= 0}
-          >
-            {busy ? 'Working…' : 'Send on Sepolia'}
+          <Button onClick={onClose} variant="secondary" className="w-full" disabled={busy}>
+            Close
           </Button>
         </div>
       </div>

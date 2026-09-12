@@ -479,6 +479,19 @@ export const startMultiMarketPriceFeed = (
     try {
       // Prefer same-origin API when in browser (hides keys, avoids CORS)
       if (typeof window !== 'undefined') {
+        // Fast path: selected majors first so the chart unblocks quickly
+        try {
+          const btcRes = await fetch('/api/price/latest?asset=BTC', { cache: 'no-store' });
+          if (btcRes.ok) {
+            const btcJson = await btcRes.json();
+            if (btcJson?.price > 0) {
+              callback({ BTC: btcJson.price } as Record<AssetType, number>);
+            }
+          }
+        } catch {
+          /* continue to full batch */
+        }
+
         const res = await fetch('/api/price/latest', { cache: 'no-store' });
         if (res.ok) {
           const json = await res.json();

@@ -226,11 +226,17 @@ export const LiveChart: React.FC<LiveChartProps> = ({ betAmount, setBetAmount })
     setIsLoadingPrice(true); // Show loading when switching assets
   }, [selectedAsset]);
 
-  // Hide loading when price data arrives
+  // Hide loading when price data arrives (or after a soft timeout so UI isn't stuck)
   useEffect(() => {
-    if (currentPrice > 0 && priceHistory.length >= 2) {
+    if (currentPrice > 0 && priceHistory.length >= 1) {
       setIsLoadingPrice(false);
+      return;
     }
+    const t = setTimeout(() => {
+      // Don't block the whole chart forever if feeds are slow
+      if (currentPrice > 0) setIsLoadingPrice(false);
+    }, 8000);
+    return () => clearTimeout(t);
   }, [currentPrice, priceHistory]);
 
   // Update dimensions
