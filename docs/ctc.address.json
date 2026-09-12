@@ -3,12 +3,38 @@
   "tracks": ["DeFi", "Gaming"],
   "network": "CreditCoin Testnet",
   "chainId": 102031,
+  "attestcoin": {
+    "protocol": "Attestcoin Protocol (USC)",
+    "docs": "https://docs.attestcoin.org/",
+    "integrationDoc": "docs/ATTESTCOIN.md",
+    "sdk": "@gluwa/usc-sdk",
+    "sourceChain": "Ethereum Sepolia",
+    "sourceChainKey": 1,
+    "proofBuilderUrl": "https://proof-gen-api.cc3-testnet.creditcoin.network",
+    "dashboardUrl": "https://dashboard.cc3-testnet.creditcoin.network",
+    "blockProverPrecompile": "0x0000000000000000000000000000000000000FD2",
+    "chainInfoPrecompile": "0x0000000000000000000000000000000000000fd3",
+    "decoder": "0x731c345d79Fb8BbDC541f9DF3b6317585F849F9f",
+    "apis": [
+      "/api/attestcoin/chains",
+      "/api/attestcoin/status",
+      "/api/attestcoin/prove",
+      "/api/attestcoin/deposit"
+    ],
+    "summary": "Sepolia ETH deposits are attested via Attestcoin; Merkle+continuity proofs are verified with verifyAndEmit on Creditcoin BlockProver; CTC house balance is credited for binary options trading."
+  },
   "contracts": [
     {
       "name": "CreditnomoTreasury",
       "address": "0x71197e7a1CA5A2cb2AD82432B924F69B1E3dB123",
       "explorerLink": "https://creditcoin-testnet.blockscout.com/address/0x71197e7a1CA5A2cb2AD82432B924F69B1E3dB123?tab=index",
       "description": "Primary CTC treasury for deposits and withdrawals. EOA wallet for instant house balance settlement."
+    },
+    {
+      "name": "AttestcoinBlockProver",
+      "address": "0x0000000000000000000000000000000000000FD2",
+      "explorerLink": "https://creditcoin-testnet.blockscout.com/address/0x0000000000000000000000000000000000000FD2",
+      "description": "Attestcoin Protocol BlockProver precompile used by Creditnomo for verifyAndEmit of Sepolia deposit proofs."
     }
   ],
   "frontendUrl": "https://creditnomo-kappa.vercel.app",
@@ -18,8 +44,9 @@
   "pitchDeck": "https://docs.google.com/presentation/d/1kLYkj42a4R3cMYrsuxRkb84evhZ659MvbFXp28knRvM/edit?slide=id.g3ab778face2_0_20#slide=id.g3ab778face2_0_20",
   "demoVideo": "https://youtu.be/jxhAybpdMfk",
   "features": [
+    "Attestcoin Protocol cross-chain deposits (Sepolia → Creditcoin)",
     "Binary options trading on CreditCoin",
-    "Pyth Hermes oracle integration for millisecond-precise pricing",
+    "Multi-provider market prices (CoinGecko, DexScreener, CMC, GMGN, Axiom, Padre)",
     "Instant house balance (hybrid custody)",
     "Classic & Box game modes",
     "Blitz Rounds with multipliers",
@@ -28,10 +55,10 @@
   ],
   "techStack": {
     "frontend": "Next.js 16, React 19, TypeScript, Tailwind CSS",
-    "blockchain": "CreditCoin Testnet, ethers.js, wagmi, Privy",
-    "oracle": "Pyth Network Hermes",
+    "blockchain": "CreditCoin Testnet, Attestcoin Protocol, ethers.js, wagmi, Privy",
+    "oracle": "Attestcoin Protocol (cross-chain) + CoinGecko/DexScreener/CMC/GMGN/Axiom/Padre (prices)",
     "database": "Supabase PostgreSQL",
     "deployment": "Vercel"
   },
-  "notes": "DeFi Track: On-chain derivatives and binary options trading. Gaming Track: Blitz Rounds, player-driven economy, leaderboards. All deposits/withdrawals on CreditCoin Testnet. Bets settled off-chain via Pyth Hermes oracles."
+  "notes": "BUIDL CTC 2026 Fall: Attestcoin is a core feature for cross-chain capital. DeFi Track: binary options. Gaming Track: Blitz/Box. Price settlement via multi-provider market feeds; deposit authenticity via Attestcoin verifyAndEmit."
 }

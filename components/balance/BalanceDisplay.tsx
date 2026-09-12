@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { DepositModal } from './DepositModal';
 import { WithdrawModal } from './WithdrawModal';
+import { CrossChainDepositModal } from './CrossChainDepositModal';
 import { useToast } from '@/lib/hooks/useToast';
 
 /**
@@ -37,6 +38,7 @@ export const BalanceDisplay: React.FC = () => {
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
+  const [isCrossChainDepositOpen, setIsCrossChainDepositOpen] = useState(false);
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
 
   // Actions from other slices (using the unified store)
@@ -210,7 +212,7 @@ export const BalanceDisplay: React.FC = () => {
                   size="sm"
                   className="w-full !px-2 !py-1.5 !text-xs"
                 >
-                  Deposit
+                  Deposit CTC
                 </Button>
 
                 <Button
@@ -221,6 +223,16 @@ export const BalanceDisplay: React.FC = () => {
                   className="w-full !px-2 !py-1.5 !text-xs"
                 >
                   Withdraw
+                </Button>
+
+                <Button
+                  onClick={() => setIsCrossChainDepositOpen(true)}
+                  disabled={!address || isLoading}
+                  variant="secondary"
+                  size="sm"
+                  className="w-full col-span-2 !px-2 !py-1.5 !text-xs border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10"
+                >
+                  Attestcoin Deposit (Sepolia)
                 </Button>
               </>
             )}
@@ -239,6 +251,12 @@ export const BalanceDisplay: React.FC = () => {
       <DepositModal
         isOpen={isDepositModalOpen}
         onClose={() => setIsDepositModalOpen(false)}
+        onSuccess={handleDepositSuccess}
+      />
+
+      <CrossChainDepositModal
+        isOpen={isCrossChainDepositOpen}
+        onClose={() => setIsCrossChainDepositOpen(false)}
         onSuccess={handleDepositSuccess}
       />
 

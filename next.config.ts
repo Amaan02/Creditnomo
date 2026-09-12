@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: false,
   },
   turbopack: {},
+  serverExternalPackages: ['@gluwa/usc-sdk'],
 };
 
 export default nextConfig;

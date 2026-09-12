@@ -106,9 +106,9 @@ export const WalletConnectModal: React.FC = () => {
                     {/* Footer */}
                     <div className="p-4 bg-white/5 text-center shrink-0">
                         <p className="text-[8px] sm:text-[10px] text-gray-500 uppercase tracking-widest font-bold">
-                            CREDITNOMO Protocol · Pyth Hermes
+                            CREDITNOMO Protocol · Market Prices
                         </p>
-                        <p className="text-[9px] text-gray-600 mt-1">Powered by Pyth Hermes · CREDITNOMO Protocol</p>
+                        <p className="text-[9px] text-gray-600 mt-1">CoinGecko · DexScreener · CMC · CREDITNOMO Protocol</p>
                     </div>
                 </motion.div>
             </div>

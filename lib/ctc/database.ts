@@ -12,17 +12,22 @@ import { createClient } from '@supabase/supabase-js';
 // Validate required environment variables
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// Prefer secret/service key on the server so API routes bypass RLS safely
+const supabaseServerKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  process.env.SUPABASE_SERVICE_KEY ||
+  supabaseAnonKey;
 
 if (!supabaseUrl) {
   throw new Error('Missing environment variable: NEXT_PUBLIC_SUPABASE_URL');
 }
 
-if (!supabaseAnonKey) {
+if (!supabaseAnonKey && !supabaseServerKey) {
   throw new Error('Missing environment variable: NEXT_PUBLIC_SUPABASE_ANON_KEY');
 }
 
-// Create and export Supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+// Create and export Supabase client (server key when available)
+export const supabase = createClient(supabaseUrl, supabaseServerKey || supabaseAnonKey!, {
   auth: {
     persistSession: false,
   },
@@ -41,11 +46,12 @@ export interface BalanceAuditLog {
   id: number;
   user_address: string;
   currency: string;
-  operation: string;
+  operation_type: string;
   amount: string; // Decimal string (18 decimals)
   balance_before: string; // Decimal string (18 decimals)
   balance_after: string; // Decimal string (18 decimals)
-  tx_hash?: string;
+  transaction_hash?: string;
+  bet_id?: string;
   created_at: string;
 }
 
@@ -227,11 +233,11 @@ export async function createAuditLog(
       .insert({
         user_address: userAddress.toLowerCase(),
         currency: 'CTC',
-        operation,
+        operation_type: operation,
         amount,
         balance_before: balanceBefore,
         balance_after: balanceAfter,
-        tx_hash: txHash || null,
+        transaction_hash: txHash || null,
         created_at: new Date().toISOString(),
       });
 

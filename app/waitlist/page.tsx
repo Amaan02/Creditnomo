@@ -18,7 +18,7 @@ const steps = [
     {
         id: "02",
         title: "Multi-Asset Feed",
-        desc: "Trade more than just crypto. Predict millisecond movements on Bitcoin, ETH, Gold, and Tech giants like NVDA and TSLA via Pyth Fixed Oracles."
+        desc: "Trade more than just crypto. Predict movements on Bitcoin, ETH, Gold, and tech names via live market price feeds."
     },
     {
         id: "03",
@@ -36,7 +36,7 @@ const testimonials = [
     {
         name: "Astra Vance",
         role: "Venture Strategist",
-        content: "The Blitz Rounds are a game-changer. The millisecond precision from Pyth Oracles makes CREDITNOMO feel like a professional CEX but with decentralized peace of mind.",
+        content: "The Blitz Rounds are a game-changer. Live market prices make CREDITNOMO feel like a professional CEX but with decentralized peace of mind.",
         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop"
     },
     {
@@ -72,7 +72,7 @@ const faqs = [
     },
     {
         question: "What assets can I trade?",
-        answer: "Creditnomo supports a wide range of assets including major cryptos (BTC, ETH, SOL), precious metals (Gold, Silver), and top-tier stocks (AAPL, NVDA, TSLA) through Pyth price feeds."
+        answer: "Creditnomo supports a wide range of assets including major cryptos (BTC, ETH, SOL), precious metals (Gold, Silver), and top-tier stocks (AAPL, NVDA, TSLA) through multi-provider market price feeds."
     },
     {
         question: "What are Blitz Rounds?",

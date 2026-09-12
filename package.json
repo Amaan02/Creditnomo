@@ -1,7 +1,7 @@
 {
   "name": "CreditNomo",
   "version": "0.1.0",
-  "description": "On-chain binary options trading dApp on CreditCoin testnet. Built for CreditCoin ecosystem.",
+  "description": "On-chain binary options trading dApp on CreditCoin testnet with Attestcoin Protocol. Built for CreditCoin ecosystem.",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -18,8 +18,8 @@
     "reconcile": "ts-node scripts/reconcile-balance.ts"
   },
   "dependencies": {
+    "@gluwa/usc-sdk": "^0.18.0",
     "@privy-io/react-auth": "^2.1.0",
-    "@pythnetwork/hermes-client": "^2.1.0",
     "@supabase/supabase-js": "^2.91.1",
     "@tanstack/react-query": "^5.90.20",
     "@vercel/analytics": "^1.6.1",

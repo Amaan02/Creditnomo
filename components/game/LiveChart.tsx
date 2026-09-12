@@ -761,7 +761,7 @@ export const LiveChart: React.FC<LiveChartProps> = ({ betAmount, setBetAmount })
             {/* Text */}
             <div className="text-center">
               <p className="text-white text-sm font-medium mb-1">Loading {currentAssetConfig.name} Price</p>
-              <p className="text-gray-500 text-xs">Connecting to Pyth Network...</p>
+              <p className="text-gray-500 text-xs">Connecting to market price feeds...</p>
             </div>
           </div>
         </div>
@@ -1230,7 +1230,7 @@ export const LiveChart: React.FC<LiveChartProps> = ({ betAmount, setBetAmount })
                 className="w-1.5 h-1.5 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.8)]"
               />
               <span className="text-[9px] text-gray-400 font-black tracking-[0.2em] uppercase">
-                Powered by Pyth Hermes
+                Powered by CoinGecko · DexScreener · CMC
               </span>
             </div>
           </div>

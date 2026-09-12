@@ -17,7 +17,7 @@ const STEPS = [
         id: '02',
         phase: 'PREDICTIVE ANALYSIS',
         title: 'Select Execution Mode',
-        description: 'Choose between Classic (2x) or Box Mode (up to 10x). Our high-frequency engine tracks Pyth price feeds with zero latency.',
+        description: 'Choose between Classic (2x) or Box Mode (up to 10x). Our high-frequency engine tracks live market prices with low latency.',
         color: 'from-purple-500/20 to-pink-400/20',
         accent: '#a855f7'
     },

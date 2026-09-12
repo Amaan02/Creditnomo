@@ -25,11 +25,13 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://creditnomo-kappa.vercel.app'),
   title: "CreditNomo - Binary Options on CreditCoin",
   description:
-    "On-chain binary options trading dApp on CreditCoin testnet. Powered by Pyth Hermes price attestations and Supabase. Oracle-bound resolution, minimal trust.",
+    "On-chain binary options trading dApp on CreditCoin testnet. Powered by Attestcoin Protocol, multi-provider market prices, and Supabase. Oracle-bound resolution, minimal trust.",
   keywords: [
     "binary options",
     "crypto trading",
-    "Pyth oracle",
+    "CoinGecko",
+    "DexScreener",
+    "Attestcoin",
     "CreditCoin",
     "CTC",
     "Web3",
@@ -43,7 +45,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "CreditNomo - Binary Options on CreditCoin",
     description:
-      "On-chain binary options trading dApp on CreditCoin testnet. Powered by Pyth Hermes and Supabase. Oracle-bound resolution, minimal trust.",
+      "On-chain binary options trading dApp on CreditCoin testnet. Powered by Attestcoin, market price providers, and Supabase.",
     images: [{ url: '/creditnomo-logo.png', width: 512, height: 512, alt: 'CreditNomo' }],
   },
   twitter: {

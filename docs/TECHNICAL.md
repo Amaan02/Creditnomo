@@ -11,9 +11,10 @@ One place for **how Creditnomo works** and how to **run and demo** it quickly, o
 Creditnomo is a **Next.js 16 + React 19** app deployed on **CreditCoin Testnet** with:
 
 - **Frontend**: Next.js App Router UI, Tailwind CSS, Zustand for state.
-- **On-chain layer**: Single CTC treasury EOA on CreditCoin Testnet (deposits/withdrawals only).
-- **Oracle**: **Pyth Hermes** price feeds for sub‑minute binary options.
-- **Backend**: Next.js API routes + **Supabase (PostgreSQL)** for balances, bets, referrals, and logs.
+- **On-chain layer**: Single CTC treasury EOA on CreditCoin Testnet (deposits/withdrawals) + **Attestcoin BlockProver** for cross-chain deposit proofs.
+- **Oracle (prices)**: CoinGecko / DexScreener / CMC (+ optional GMGN / Axiom / Padre) via `lib/utils/priceFeed.ts`.
+- **Attestcoin Protocol**: Sepolia ETH deposits proven with `@gluwa/usc-sdk` (Merkle + continuity) and `verifyAndEmit` on Creditcoin (`0x…0FD2`). See **[ATTESTCOIN.md](./ATTESTCOIN.md)**.
+- **Backend**: Next.js API routes + **Supabase (PostgreSQL)** for balances, bets, referrals, attested deposits, and logs.
 
 High‑level component diagram:
 
@@ -26,7 +27,7 @@ graph TB
     end
 
     subgraph Oracle
-        Pyth["Pyth Hermes Price Feeds"]
+        Pyth["Market Price Providers"]
     end
 
     subgraph CTCChain["CreditCoin Testnet"]
@@ -57,7 +58,7 @@ graph TB
 sequenceDiagram
     participant U as User
     participant App as Creditnomo App
-    participant P as Pyth Hermes
+    participant P as Price Providers
     participant API as API + Supabase
     participant CTC as CTC Treasury (CreditCoin)
 
@@ -88,7 +89,7 @@ sequenceDiagram
   - CTC withdrawals from treasury back to user wallets.
 - **Off-chain**
   - House balances, bet records, referrals, and session data stored in **Supabase**.
-  - Bet placement and settlement are processed off‑chain using Pyth prices; only net deposits/withdrawals touch the chain.
+  - Bet placement and settlement are processed off‑chain using market price providers; only net deposits/withdrawals touch the chain.
 
 ### Security & Risk Mitigation (Phase 1)
 
@@ -96,7 +97,7 @@ sequenceDiagram
   - Single EOA with controlled keys (moving to multi‑sig + vaults per `ROADMAP.md`).
   - Operational limits on withdrawal size and monitoring for anomalies.
 - **Oracle**
-  - Pyth Hermes with planned **circuit breakers** for large price deviations.
+  - Market price providers with planned **circuit breakers** for large price deviations.
   - Insurance fund funded from protocol fees (see `README.md` revenue model).
 - **Backend & DB**
   - Supabase row‑level security for user data.
@@ -188,7 +189,7 @@ At minimum, to confirm the app is working:
 
 - The landing page loads without errors.
 - You can open the connect wallet dialog (MetaMask / WalletConnect / Privy).
-- Price feed and chart update periodically (when correctly configured with Pyth).
+- Price feed and chart update periodically (CoinGecko / DexScreener / CMC cascade).
 - UI state updates when switching assets and modes.
 
 ---
@@ -220,7 +221,7 @@ yarn dev
 3. **Place a Classic bet**  
    - Select an asset (e.g. BTC/USDT) and a short duration (e.g. 30s).
    - Choose **UP** or **DOWN**, enter a small stake, and confirm.
-   - Watch the countdown; at expiry, Creditnomo uses **Pyth Hermes** to resolve the outcome and adjusts your house balance.
+   - Watch the countdown; at expiry, Creditnomo uses **market price providers** to resolve the outcome and adjusts your house balance.
 4. **Review history**  
    - Open the history panel to see the bet result and PnL.
 
@@ -245,7 +246,7 @@ yarn dev
   - Confirm the wallet network matches CreditCoin Testnet (Chain ID: 102031).
   - Check `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` is valid.
 - **No price data**  
-  - Verify Pyth configuration and that you have set appropriate envs for Hermes endpoints (see `DEVELOPER_GUIDE.md`).
+  - Verify price provider configuration in `.env` (`PRICE_PROVIDER_ORDER`, CoinGecko / CMC keys as needed).
 
 > For more detailed troubleshooting and production deployment notes, see `DEVELOPER_GUIDE.md` and `README.md` (Architecture & Scalability sections).
 

@@ -11,5 +11,9 @@ Supporting material for demos and judging.
 
 - **Demo video** — [Creditnomo Demo (YouTube)](https://youtu.be/jxhAybpdMfk)  
 
+- **Attestcoin Protocol** — Technical integration docs: [docs/ATTESTCOIN.md](./ATTESTCOIN.md)  
+  Live API: [https://creditnomo-kappa.vercel.app/api/attestcoin/chains](https://creditnomo-kappa.vercel.app/api/attestcoin/chains)  
+  Protocol docs: [https://docs.attestcoin.org/](https://docs.attestcoin.org/)
+
 - **GitHub** — Source code and docs.  
   Link: [https://github.com/Amaan02/Creditnomo](https://github.com/Amaan02/Creditnomo)

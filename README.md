@@ -1,17 +1,32 @@
 # CreditNomo
 
 **The first on-chain binary options trading dApp built on CreditCoin.**  
-Powered by **CreditCoin testnet** + **Pyth Hermes** price attestations + **Supabase** + instant house balance.
+Powered by **CreditCoin testnet** + **Attestcoin Protocol** (cross-chain deposits) + **multi-provider market prices** (CoinGecko / DexScreener / CMC / GMGN / Axiom / Padre) + **Supabase** + instant house balance.
 
-*Trade binary options with oracle-bound resolution and minimal trust.*
+*Trade binary options with oracle-bound resolution, Attestcoin-verified capital, and minimal trust.*
 
 **Links:**
 - Live app: https://creditnomo-kappa.vercel.app/trade
 - Demo video: https://youtu.be/jxhAybpdMfk
 - GitHub: https://github.com/Amaan02/Creditnomo
 - Deck: https://docs.google.com/presentation/d/1kLYkj42a4R3cMYrsuxRkb84evhZ659MvbFXp28knRvM/edit?slide=id.g3ab778face2_0_20#slide=id.g3ab778face2_0_20
+- Attestcoin integration docs: [docs/ATTESTCOIN.md](docs/ATTESTCOIN.md)
 
 **Main treasury (CreditCoin testnet):** [`0x71197e7a1CA5A2cb2AD82432B924F69B1E3dB123`](https://creditcoin-testnet.blockscout.com/address/0x71197e7a1CA5A2cb2AD82432B924F69B1E3dB123?tab=index)
+
+---
+
+## Attestcoin Protocol Integration Summary
+
+Creditnomo integrates the **[Attestcoin Protocol](https://attestcoin.org/)** as a **core capital path**:
+
+1. User sends **ETH on Ethereum Sepolia** to the Creditnomo deposit address.
+2. Creditnomo waits until Attestcoin **attests** that Sepolia block on Creditcoin.
+3. Using **`@gluwa/usc-sdk`**, it builds **Merkle + continuity proofs** via the Proof Builder API.
+4. It submits **`verifyAndEmit`** to the Creditcoin **BlockProver precompile (`0x…0FD2`)**.
+5. On success, the user’s **CTC house balance** is credited for Classic / Box trading.
+
+Full technical write-up: **[docs/ATTESTCOIN.md](docs/ATTESTCOIN.md)** · APIs under `/api/attestcoin/*` · UI: **Attestcoin Deposit (Sepolia)** on the trade page.
 
 ---
 
@@ -20,8 +35,9 @@ Powered by **CreditCoin testnet** + **Pyth Hermes** price attestations + **Supab
 - **Gaming** - Blitz Rounds with multipliers, leaderboards, and player-driven betting mechanics
 
 **Key Features:**
+- ✅ **Attestcoin Protocol** cross-chain deposits (Sepolia → Creditcoin proofs)
 - ✅ On-chain treasury on CreditCoin Testnet
-- ✅ Millisecond-precise price feeds via Pyth Hermes  
+- ✅ Live market prices via CoinGecko / DexScreener / CMC (+ optional GMGN / Axiom / Padre)  
 - ✅ Instant house balance for gas-free betting
 - ✅ Classic & Box game modes
 - ✅ Referral system and leaderboards
@@ -34,9 +50,9 @@ Powered by **CreditCoin testnet** + **Pyth Hermes** price attestations + **Supab
 
 | Content | Location |
 |--------|----------|
-| **Core code** | `app/`, `components/`, `lib/`, `supabase/`, `scripts/` — full Next.js app, CreditCoin integration, Pyth, Supabase |
+| **Core code** | `app/`, `components/`, `lib/`, `supabase/`, `scripts/` — full Next.js app, CreditCoin integration, market price providers, Supabase |
 | **README** | This file — overview, quick start, tech stack, architecture, getting started |
-| **Architecture & flow (`.md` + Mermaid)** | **README.md** (How It Works, System Architecture, Data Flow, Game Modes) · **docs/TECHNICAL.md** (architecture, setup, demo) · **docs/PROJECT.md** (problem, solution, user journey) · **USER_JOURNEY.md** (onboarding, deposit, Classic/Box, withdrawal, lifecycle) · **DEVELOPER_GUIDE.md** (component diagram, sequence diagram) · **ROADMAP.md** (timeline) |
+| **Architecture & flow (`.md` + Mermaid)** | **README.md** · **docs/ATTESTCOIN.md** (Attestcoin Protocol) · **docs/TECHNICAL.md** · **docs/PROJECT.md** · **USER_JOURNEY.md** · **DEVELOPER_GUIDE.md** · **ROADMAP.md** |
 
 ---
 
@@ -46,7 +62,7 @@ Powered by **CreditCoin testnet** + **Pyth Hermes** price attestations + **Supab
 |------|--------|
 | `app/` | Next.js App Router pages and API routes |
 | `components/` | React UI components (trade, chart, wallet) |
-| `lib/` | CTC config, Supabase client, Pyth, utilities |
+| `lib/` | CTC config, Supabase client, market price feed, Attestcoin, utilities |
 | `docs/` | PROJECT.md, TECHNICAL.md, EXTRAS.md, CreditCoin.address.json |
 | `scripts/` | Balance sync, reconciliation, DB helpers |
 | `supabase/` | SQL migrations and Supabase config |
@@ -58,7 +74,7 @@ Powered by **CreditCoin testnet** + **Pyth Hermes** price attestations + **Supab
 
 Binary options trading in Web3 does not exists. Real-time oracles and sub-second resolution have been the missing piece.
 
-- **Pyth Hermes** delivers millisecond-grade prices for 300+ assets (crypto, stocks, metals, forex).
+- **CoinGecko / DexScreener / CMC** (and optional GMGN / Axiom / Padre) deliver live USD prices for settlement.
 - **CreditCoin testnet** — EVM-compatible blockchain for fast finality and low fees.
 - **House balance** — place unlimited bets without signing a transaction every time; only deposit/withdraw hit the chain.
 - **5s, 10s, 15s, 30s, 1m** rounds with oracle-bound settlement.
@@ -73,7 +89,7 @@ CreditNomo brings binary options to CreditCoin testnet with transparent, on-chai
 |-------------|------------|
 | **Frontend** | Next.js 16, React 19, TypeScript, Tailwind CSS, Zustand, Recharts |
 | **Blockchain** | **CreditCoin testnet**, ethers.js, viem, Wagmi, ConnectKit, Privy |
-| **Oracle** | Pyth Network Hermes (real-time prices) |
+| **Oracle** | **Attestcoin Protocol** (cross-chain deposits) + CoinGecko / DexScreener / CMC / GMGN / Axiom / Padre (prices) |
 | **Backend** | Next.js API Routes, Supabase (PostgreSQL) |
 | **Payments** | CTC native transfers, single treasury |
 
@@ -86,7 +102,8 @@ CreditNomo brings binary options to CreditCoin testnet with transparent, on-chai
 - **Recharts** — charting library for price feeds and Box mode tiles.
 - **Wagmi, viem, ethers.js & ConnectKit** — wallet integration and CreditCoin testnet RPC access.
 - **Privy** — social login and embedded wallet experience.
-- **Pyth Hermes** — real-time oracle prices for settlement.
+- **Market prices** — CoinGecko, DexScreener, CMC, with optional GMGN / Axiom / Padre (`lib/utils/priceFeed.ts`).
+- **Attestcoin Protocol (`@gluwa/usc-sdk`)** — trustless Sepolia→Creditcoin deposit proofs via BlockProver.
 - **Supabase (PostgreSQL)** — managed database, auth, and SQL migrations.
 
 ---
@@ -112,7 +129,7 @@ CreditNomo brings binary options to CreditCoin testnet with transparent, on-chai
 | **On-chain options / DeFi** | Dopex, Lyra, Premia | Standard options (calls/puts), complex UX; no simple “price up/down in 30s” binary product. |
 | **CreditCoin testnet binary options** | — | No established on-chain binary options dApp; CreditNomo fills this gap. |
 
-**CreditNomo’s differentiation:** First on-chain binary options dApp on CreditCoin testnet with sub-second oracle resolution (Pyth Hermes), house balance for instant bets, and dual modes (Classic + Box) in one treasury.
+**CreditNomo’s differentiation:** First on-chain binary options dApp on CreditCoin testnet with multi-provider market prices, house balance for instant bets, and dual modes (Classic + Box) in one treasury.
 
 ---
 
@@ -141,7 +158,7 @@ flowchart LR
     end
     subgraph CreditNomo
         F[MetaMask / ConnectKit / Privy]
-        G[Pyth Hermes Prices]
+        G[Market Prices CG/Dex/CMC]
         H[Supabase Balances]
         I[CTC Treasury]
     end
@@ -158,7 +175,7 @@ flowchart LR
 1. **Connect** — Connect via MetaMask (ConnectKit/Wagmi) or Privy (social login). All operations use **CTC** on CreditCoin testnet.
 2. **Deposit** — Send CTC from your wallet to the CreditNomo treasury. Your house balance is credited instantly.
 3. **Place bet** — Choose **Classic** (up/down + expiry) or **Box** (tap tiles with multipliers). No on-chain tx per bet.
-4. **Resolution** — Pyth Hermes provides the price at expiry; win/loss is applied to your house balance.
+4. **Resolution** — Market price providers resolve the price at expiry; win/loss is applied to your house balance.
 5. **Withdraw** — Request withdrawal; CTC is sent from the treasury to your wallet on CreditCoin testnet.
 
 ---
@@ -174,7 +191,7 @@ graph TB
     end
 
     subgraph Oracle
-        Pyth["Pyth Hermes Price Feeds"]
+        Pyth["Market Price Providers"]
     end
 
     subgraph CTCChain["CreditCoin Testnet"]
@@ -205,7 +222,7 @@ graph TB
 sequenceDiagram
     participant U as User
     participant App as CreditNomo App
-    participant P as Pyth Hermes
+    participant P as Price Providers
     participant API as API + Supabase
     participant CTC as CTC Treasury on CreditCoin
 
@@ -352,7 +369,7 @@ CreditNomo is designed for **high-throughput, low-latency** binary options tradi
 | Metric | Value | Notes |
 |--------|-------|-------|
 | **Bet throughput** | 1,000+ bets/second | Off-chain house balance (no tx per bet) |
-| **Price updates** | 1-second interval | Pyth Hermes real-time feed |
+| **Price updates** | ~2s interval | CoinGecko / DexScreener / CMC cascade |
 | **Concurrent users** | 10,000+ | Supabase PostgreSQL + connection pooling |
 | **Settlement latency** | <100ms | In-memory bet resolution + DB write |
 | **Blockchain finality** | ~3 seconds | CreditCoin testnet block time |
@@ -465,7 +482,7 @@ CreditNomo enables on-chain binary options trading with lending-style house bala
 Features Blitz Rounds with multiplier-based rewards, leaderboards, referral systems, and player-driven betting economies. Players compete for rankings and unlock VIP tiers through volume and performance.
 
 **Key Innovations:**
-- ⚡ Millisecond-precise Pyth Hermes oracle integration
+- ⚡ Multi-provider market prices (CoinGecko, DexScreener, CMC, GMGN, Axiom, Padre)
 - 🎮 Dual game modes (Classic binary & Box grid betting)
 - 💰 Hybrid custody with instant house balance
 - 🏆 Tiered system with Blitz multipliers

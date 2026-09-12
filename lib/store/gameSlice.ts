@@ -778,9 +778,9 @@ export const startGlobalPriceFeed = (
   let stopFeedFn: (() => void) | null = null;
   let isActive = true;
 
-  import('@/lib/utils/priceFeed').then(({ startMultiPythPriceFeed }) => {
+  import('@/lib/utils/priceFeed').then(({ startMultiMarketPriceFeed }) => {
     if (!isActive) return;
-    stopFeedFn = startMultiPythPriceFeed((prices) => {
+    stopFeedFn = startMultiMarketPriceFeed((prices) => {
       if (isActive) {
         updateAllPrices(prices);
       }
@@ -821,9 +821,9 @@ export const startPriceFeed = (
     }
   };
 
-  import('@/lib/utils/priceFeed').then(({ startPythPriceFeed }) => {
+  import('@/lib/utils/priceFeed').then(({ startMarketPriceFeed }) => {
     if (!isActive) return;
-    stopFeedFn = startPythPriceFeed((price) => {
+    stopFeedFn = startMarketPriceFeed((price) => {
       if (isActive) updatePrice(price, asset);
     }, asset);
   });

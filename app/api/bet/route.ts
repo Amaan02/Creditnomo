@@ -255,10 +255,8 @@ async function handleBetPlacement(body: BetPlacementRequest): Promise<NextRespon
 /**
  * Handle bet settlement
  * Credits CTC payout for winning bets and updates bet_history
- * Fetches price from Pyth oracle with retry logic
+ * Fetches price from market providers with retry logic
  * Refunds bet if oracle fails after all retries
- * 
- * Requirements: 9.3, 9.5, 9.6
  */
 async function handleBetSettlement(body: BetSettlementRequest): Promise<NextResponse> {
   const { betId, asset } = body;
@@ -543,13 +541,8 @@ async function handleBetSettlement(body: BetSettlementRequest): Promise<NextResp
 }
 
 /**
- * Fetch price from Pyth oracle with retry logic
+ * Fetch price from market providers (CoinGecko / DexScreener / CMC / …) with retry
  * Retries up to 3 times with 1 second delay between attempts
- * 
- * @param asset - Asset symbol (e.g., 'BTC', 'ETH')
- * @returns Price data or null if all retries fail
- * 
- * Requirements: 9.3, 9.4
  */
 async function fetchOraclePriceWithRetry(
   asset: string,

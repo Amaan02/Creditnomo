@@ -10,6 +10,7 @@
 import { getDefaultConfig } from 'connectkit';
 import { createConfig, http } from 'wagmi';
 import { defineChain } from 'viem';
+import { sepolia } from 'viem/chains';
 import { creditCoinTestnet } from './config';
 
 /**
@@ -52,10 +53,11 @@ export const creditCoinTestnetChain = defineChain({
  */
 export const config = createConfig(
   getDefaultConfig({
-    // CreditCoin testnet chain
-    chains: [creditCoinTestnetChain],
+    // CreditCoin testnet + Sepolia (Attestcoin source chain for cross-chain deposits)
+    chains: [creditCoinTestnetChain, sepolia],
     transports: {
       [creditCoinTestnetChain.id]: http(),
+      [sepolia.id]: http(),
     },
 
     // WalletConnect Project ID (required for WalletConnect v2)
@@ -63,7 +65,7 @@ export const config = createConfig(
 
     // App Info
     appName: 'CreditNomo',
-    appDescription: 'Binary Options Trading on CreditCoin Testnet',
+    appDescription: 'Binary Options Trading on CreditCoin Testnet — Attestcoin Protocol',
     appUrl: 'https://creditnomo-kappa.vercel.app',
     appIcon: 'https://creditnomo-kappa.vercel.app/creditnomo-logo.png',
   }),
